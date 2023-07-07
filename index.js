@@ -1,6 +1,21 @@
 import puppeteer from 'puppeteer';
-import ImageDataURI from 'image-data-uri'
+import fs from "fs"
 import path from "path"
+
+function downloadDataUri(dataUri, outputPath) {
+    // Remove the "data:image/png;base64," prefix from the data URI
+    const base64Data = dataUri.replace(/^data:image\/png;base64,/, '');
+
+    // Convert the base64 data to a buffer
+    const imageBuffer = Buffer.from(base64Data, 'base64');
+
+    // Write the buffer to a file
+    fs.writeFile(outputPath, imageBuffer, (error) => {
+        if (error) {
+            console.error('Error downloading the image:', error);
+        }
+    });
+}
 
 /**
  * Unblurs an image using Fotor's AI Enlarger feature.
@@ -66,10 +81,13 @@ let unblur = async (from, to) => {
     let uri = await page.evaluate(() => {
         return document.querySelectorAll('canvas')[0].toDataURL()
     })
-    ImageDataURI.outputFile(uri, path.resolve(to));
+
+    downloadDataUri(uri, path.resolve(to))
 
     // Close browser
     await browser.close();
 }
+
+unblur("./unblurAIopenGraph.jpg", "./test.jpg")
 
 export default unblur;
