@@ -2,7 +2,7 @@ import puppeteer from 'puppeteer';
 import fs from "fs"
 import path from "path"
 
-function downloadDataUri(dataUri, outputPath) {
+let downloadDataUri = (dataUri, outputPath) => {
     // Remove the "data:image/png;base64," prefix from the data URI
     const base64Data = dataUri.replace(/^data:image\/png;base64,/, '');
 
@@ -22,7 +22,7 @@ function downloadDataUri(dataUri, outputPath) {
  *
  * @param {string} from - The path to the image file to be unblurred.
  * @param {string} to - The path where the unblurred image will be saved.
- * @return {Promise<void>} A promise that resolves when the image is unblurred and saved.
+ * @return {Promise<string>} A promise that resolves when the image is unblurred and saved.
  */
 let unblur = async (from, to, verbose = false) => {
     try {
@@ -94,6 +94,8 @@ let unblur = async (from, to, verbose = false) => {
         await browser.close();
 
         verbose && console.log("✅ All done!");
+
+        return uri;
     } catch (e) {
         throw new Error("❌ Failed to get Fotor. Please try again in a moment. If this problem continues, submit an issue at EvanZhouDev/unblur-ai.")
     }
