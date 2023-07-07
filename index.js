@@ -26,6 +26,7 @@ function downloadDataUri(dataUri, outputPath) {
  */
 let unblur = async (from, to, verbose = false) => {
     try {
+        verbose && console.log("🚀 Launching Fotor");
         // First launch browser and start Fotor
         const browser = await puppeteer.launch({
             "headless": "new"
@@ -41,6 +42,7 @@ let unblur = async (from, to, verbose = false) => {
         await page.click("#rootPopup > div > div > span");
         await page.waitForFunction('document.querySelector("#rootPopup > div > div > span") === null')
 
+        verbose && console.log("📤 Uploading Your File");
         // Upload the file
         const fileUpload = await page.$("#canvas > div.noImageContent > div > input[type=file]");
         await fileUpload.uploadFile(path.resolve(from));
@@ -64,6 +66,8 @@ let unblur = async (from, to, verbose = false) => {
         // And then wait for load to finish
         await page.waitForSelector('.long_loading', { hidden: true });
 
+        verbose && console.log("🔍 Enlarging your file");
+
         // Apply effects onto original image
         await page.waitForXPath("//button[contains(., 'Apply')]")
         await page.evaluate(() => {
@@ -78,6 +82,7 @@ let unblur = async (from, to, verbose = false) => {
         await page.setViewport({ width: 20, height: 1024 });
         await new Promise(r => setTimeout(r, 1000));
 
+        verbose && console.log("📥 Downloading new file");
         // Download the new image
         let uri = await page.evaluate(() => {
             return document.querySelectorAll('canvas')[0].toDataURL()
@@ -87,8 +92,10 @@ let unblur = async (from, to, verbose = false) => {
 
         // Close browser
         await browser.close();
+
+        verbose && console.log("✅ All done!");
     } catch (e) {
-        throw new Error("Failed to get Fotor. Please try again in a moment. If this problem continues, submit an issue at EvanZhouDev/unblur-ai.")
+        throw new Error("❌ Failed to get Fotor. Please try again in a moment. If this problem continues, submit an issue at EvanZhouDev/unblur-ai.")
     }
 }
 
